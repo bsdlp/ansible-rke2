@@ -1,0 +1,6 @@
+---
+# tasks file for host
+- ansible.builtin.include_tasks: 00_install_virtualization.yml
+- ansible.builtin.include_tasks: 01_enable_libvirtd.yml
+- ansible.builtin.include_tasks: 02_prepare_setup.yml
+- ansible.builtin.include_tasks: 03_provision_libvirt_resources.yml

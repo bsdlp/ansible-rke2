@@ -1,0 +1,94 @@
+---
+- name: Set VM hostname prefix fact
+  ansible.builtin.set_fact:
+    node_hostname_prefix: "{{ cluster_name }}-{{ ansible_host.split('.')[0] }}"
+
+- name: Ensure server VMs are in place
+  when: "'server_hosts' in group_names"
+  block:
+    - name: Populate cluster folder with server terraform files
+      ansible.builtin.copy:
+        src: "files/terraform/"
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ cluster_name }}/servers"
+        mode: 0755
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+      become: true
+      register: server_tf_files
+
+    - name: Run Terraform for Server VMs
+      community.general.terraform:
+        project_path: "{{ server_tf_files['dest'] }}"
+        force_init: true
+        variables:
+          hostname_prefix: "{{ node_hostname_prefix }}-server"
+          domain: "{{ network.domain }}"
+          os: "ubuntu"
+          libvirt_network: "{{ cluster_name }}"
+          libvirt_pool: "{{ cluster_name }}"
+          disk_size: "{{ server.disk }}"
+          cpu: "{{ server.vcpu }}"
+          memory: "{{ server.mem }}"
+          vm_count: "{{ server.vms }}"
+          os_image_name: "{{ image_name }}.qcow2"
+          sshKey: "{{ ssh_key }}"
+        state: present
+      become: true
+      register: output_servers
+
+    - name: Add servers to given group
+      ansible.builtin.add_host:
+        hostname: '{{ node_hostname_prefix }}-server-{{ item }}.{{ network.domain }}'
+        ansible_user: root
+        ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+        inventory_dir: '{{ inventory_dir }}'
+        groups:
+          - "servers"
+        rke2_node_type: server
+      loop: "{{ range(0, agent.vms) | list }}"
+      delegate_to: localhost
+
+- name: Ensure agent VMs are in place
+  when: "'agent_hosts' in group_names"
+  block:
+    - name: Populate cluster folder with agent terraform files
+      ansible.builtin.copy:
+        src: "files/terraform/"
+        dest: "{{ workspace_directory.base_path }}/clusters/{{ cluster_name }}/agents"
+        mode: 0755
+        owner: "{{ ansible_user_id }}"
+        group: "{{ ansible_user_id }}"
+      become: true
+      register: agent_tf_files
+
+    - name: Run Terraform for Agent VMs
+      community.general.terraform:
+        project_path: "{{ agent_tf_files['dest'] }}"
+        force_init: true
+        variables:
+          hostname_prefix: "{{ node_hostname_prefix }}-agent"
+          domain: "{{ network.domain }}"
+          os: "ubuntu"
+          libvirt_network: "{{ cluster_name }}"
+          libvirt_pool: "{{ cluster_name }}"
+          disk_size: "{{ agent.disk }}"
+          cpu: "{{ agent.vcpu }}"
+          memory: "{{ agent.mem }}"
+          vm_count: "{{ agent.vms }}"
+          os_image_name: "{{ image_name }}.qcow2"
+          sshKey: "{{ ssh_key }}"
+        state: present
+      become: true
+      register: output_agents
+
+    - name: Add agents to given group
+      ansible.builtin.add_host:
+        hostname: '{{ node_hostname_prefix }}-agent-{{ item }}.{{ network.domain }}'
+        ansible_user: root
+        ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+        inventory_dir: '{{ inventory_dir }}'
+        groups:
+          - "agents"
+        rke2_node_type: agent
+      loop: "{{ range(0, agent.vms) | list }}"
+      delegate_to: localhost

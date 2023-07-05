@@ -1,0 +1,47 @@
+---
+- name: Set user home as fact
+  ansible.builtin.set_fact:
+    home_dir: "{{ ansible_env.HOME }}"
+
+- name: Ensure workspace directory exists
+  ansible.builtin.file:
+    path: "{{ workspace_directory.base_path }}"
+    state: directory
+    mode: 0755
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+  become: true
+
+- name: Copy rke2 install script
+  ansible.builtin.copy:
+    src: files/rke-install.sh
+    dest: "{{ workspace_directory.base_path }}/rke-install.sh"
+    mode: '0755'
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+  become: true
+  register: rke2_install_script
+
+- name: Install rke2
+  environment:
+    INSTALL_RKE2_TYPE: "{{ rke2_node_type }}"
+  ansible.builtin.shell:
+    cmd: "{{ rke2_install_script['dest'] }}"
+  become: true
+
+- name: Ensure rke2 config directory
+  ansible.builtin.file:
+    path: /etc/rancher/rke2
+    state: directory
+  register: rke2_config_dir
+
+- name: Ensure rke2 config.yaml.d
+  ansible.builtin.file:
+    path: "{{ rke2_config_dir['path'] }}/config.yaml.d"
+    state: directory
+  register: rke2_config_yamld
+
+- name: configure rke2 server tls san
+  ansible.builtin.template:
+      src: templates/tls-san.yaml.j2
+      dest: "{{ rke2_config_yamld['path'] }}/tls-san.yaml"

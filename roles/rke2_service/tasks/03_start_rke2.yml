@@ -1,0 +1,6 @@
+---
+- name: Enable RKE2 service
+  ansible.builtin.service:
+    enabled: true
+    name: "rke2-{{ rke2_node_type }}.service"
+    state: started

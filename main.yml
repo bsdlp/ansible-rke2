@@ -1,0 +1,33 @@
+---
+- name: configure vm host
+  hosts: vm_hosts
+  roles:
+    - vm_host
+
+- name: set up vms
+  hosts: server_hosts agent_hosts
+  vars_files:
+    - vars/main.yml
+  roles:
+    - rke2_host
+
+- name: configure server vm
+  hosts: servers
+  vars_files:
+    - vars/main.yml
+  vars:
+    rke2_node_type: server
+  roles:
+    - rke2_service
+
+# 1. this has to happen separately from server vms
+# 2. this has to happen after server vms
+# agents depend on servers, namely the cluster token
+- name: configure agent vm
+  hosts: agents
+  vars_files:
+    - vars/main.yml
+  vars:
+    rke2_node_type: agent
+  roles:
+    - rke2_service

@@ -1,0 +1,25 @@
+---
+- name: Install latest packages
+  block:
+    - name: upgrade all packages
+      ansible.builtin.apt:
+        name: '*'
+        state: latest
+
+    - name: Install required packages
+      ansible.builtin.apt:
+        name: "{{ os_packages }}"
+        state: latest
+
+- name: Install Terraform
+  ansible.builtin.unarchive:
+    src: "{{ terraform_url }}"
+    dest: /usr/bin/
+    mode: 0755
+    remote_src: true
+
+- name: Ensure pip packages are present
+  ansible.builtin.pip:
+    executable: pip3
+    name: "{{ item }}"
+  loop: "{{ python_packages }}"

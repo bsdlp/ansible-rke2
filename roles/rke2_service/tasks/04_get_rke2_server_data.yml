@@ -1,0 +1,28 @@
+---
+- name: Wait for RKE2 token file to be created
+  ansible.builtin.wait_for:
+    path: /var/lib/rancher/rke2/server/node-token
+    state: present
+
+- name: Slurp RKE2 node token
+  ansible.builtin.slurp:
+    src: /var/lib/rancher/rke2/server/node-token
+  register: rke2_node_token
+
+- name: Wait for kubeconfig to be available
+  ansible.builtin.wait_for:
+    path: /etc/rancher/rke2/rke2.yaml
+    state: present
+
+- name: Fetch kubeconfig
+  ansible.builtin.fetch:
+    src: /etc/rancher/rke2/rke2.yaml
+    dest: ../../../kubeconfig
+    flat: true
+
+- name: Replace server name in kubeconfig
+  delegate_to: localhost
+  ansible.builtin.replace:
+    path: ../../../kubeconfig
+    regexp: '127\.0\.0\.1'
+    replace: "{{ inventory_hostname }}"

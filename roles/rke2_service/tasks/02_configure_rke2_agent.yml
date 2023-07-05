@@ -1,0 +1,21 @@
+---
+- name: Fetch RKE2 node token from inventory
+  ansible.builtin.set_fact:
+    rke2_server_host: "{{ groups['servers'][0] }}"
+    rke2_node_token: "{{ hostvars[groups['servers'][0]]['rke2_node_token'] }}"
+
+- name: Check if RKE2 node token is present
+  when: "rke2_node_token == ''"
+  ansible.builtin.fail:
+    msg: "did not find RKE2 node token"
+
+- name: Check if RKE2 server host is present
+  when: "rke2_server_host == ''"
+  ansible.builtin.fail:
+    msg: "did not find rke2 server host"
+
+- name: Write rke2 config
+  ansible.builtin.template:
+    src: templates/rke2_config.yaml.j2
+    dest: "{{ rke2_config_dir['path'] }}/config.yaml"
+  notify: Restart RKE2 Service

@@ -1,0 +1,10 @@
+---
+# handlers file for host
+- name: Netplan Apply
+  ansible.builtin.command:
+    cmd: netplan apply
+
+- name: Restart libvirtd
+  ansible.builtin.service:
+    name: libvirtd
+    state: restarted

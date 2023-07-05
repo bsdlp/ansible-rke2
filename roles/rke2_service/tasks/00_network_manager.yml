@@ -1,0 +1,9 @@
+---
+- name: ensure networkmanager does not manage rke network interfaces
+  ansible.builtin.copy:
+    src: files/rke-networkmanager.conf
+    dest: /etc/NetworkManager/conf.d/rke2-canal.conf
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload NetworkManager

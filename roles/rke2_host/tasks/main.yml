@@ -1,0 +1,3 @@
+---
+# tasks file for agent
+- ansible.builtin.include_tasks: 01_provision.yml

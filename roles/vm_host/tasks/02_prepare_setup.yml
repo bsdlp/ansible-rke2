@@ -1,0 +1,56 @@
+---
+- name: Set user home as fact
+  ansible.builtin.set_fact:
+    home_dir: "{{ ansible_env.HOME }}"
+
+- name: Ensure workspace directory exists
+  ansible.builtin.file:
+    path: "{{ workspace_directory.base_path }}"
+    state: directory
+    mode: 0755
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+  become: true
+
+- name: Ensure cluster folder exists
+  ansible.builtin.file:
+    path: "{{ workspace_directory.base_path }}/clusters/{{ cluster_name }}"
+    state: directory
+    recurse: true
+    mode: 0755
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+  become: true
+
+- name: Ensure pivot tmp folder exists
+  ansible.builtin.file:
+    path: "/tmp/{{ cluster_name }}"
+    state: directory
+    mode: 0755
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+  become: true
+
+- name: Download Ubuntu image
+  ansible.builtin.get_url:
+    url: "{{ cloud_image_url }}"
+    dest: /tmp/{{ image_name }}.qcow2
+    mode: 0777
+
+- name: Populate cluster folder with terraform files
+  ansible.builtin.copy:
+    src: "files/terraform/"
+    dest: "{{ workspace_directory.base_path }}/clusters/{{ cluster_name }}"
+    mode: 0755
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+  become: true
+
+- name: Snapshot cluster configuration for further use
+  ansible.builtin.copy:
+    src: "vars"
+    dest: "{{ workspace_directory.base_path }}/clusters/{{ cluster_name }}/"
+    mode: 0755
+    owner: "{{ ansible_user_id }}"
+    group: "{{ ansible_user_id }}"
+  become: true

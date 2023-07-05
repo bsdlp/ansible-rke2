@@ -1,0 +1,10 @@
+---
+- name: Reload NetworkManager
+  ansible.builtin.service:
+    name: NetworkManager
+    state: reloaded
+
+- name: Restart RKE2 Service
+  ansible.builtin.service:
+    name: "rke2-{{ rke2_node_type }}.service"
+    state: restarted

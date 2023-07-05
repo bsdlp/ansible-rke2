@@ -1,0 +1,23 @@
+---
+ssh_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBiYsihuKyh5ySvFSDeduMp+HgtGtp0zQIxjC8UeBvib jchen@MacBook-Air-3.catnet
+
+network:
+  domain: catnet
+  cidr: 192.168.0.0/16
+
+server:
+  disk: 40
+  mem: 2
+  vcpu: 2
+  vms: 1
+
+agent:
+  disk: 512
+  mem: 56
+  vms: 1
+  vcpu: 8
+
+cluster_name: pounce
+
+workspace_directory:
+  base_path: "{{ home_dir }}/rke2-setup"

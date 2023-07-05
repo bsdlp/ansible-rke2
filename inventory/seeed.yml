@@ -1,0 +1,11 @@
+vm_hosts:
+  vars:
+    ansible_user: jon
+    ansible_become: true
+  children:
+    server_hosts:
+      hosts:
+        21390176.catnet:
+    agent_hosts:
+      hosts:
+        21390176.catnet:

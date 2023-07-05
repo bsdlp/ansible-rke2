@@ -1,0 +1,53 @@
+---
+# vars file for host
+
+python_packages:
+  - PyYAML
+  - jsonpatch
+  - netaddr
+
+os_packages:
+  - unzip
+  - git
+  - gcc
+  - make
+  - network-manager
+  - python3-lxml
+  - python3-netaddr
+  - python3-libvirt
+  - python3-pip
+  - libvirt-daemon-system
+  - libvirt-clients
+  - libvirt-dev
+  - bridge-utils
+  - qemu-kvm
+  - genisoimage
+  - virtinst
+  - virt-manager
+
+workspace_directory:
+  base_path: "{{ home_dir }}/rke2-setup"
+
+cloud_image_url: https://cloud-images.ubuntu.com/jammy/current/jammy-server-cloudimg-amd64.img
+
+terraform_url: https://releases.hashicorp.com/terraform/1.5.2/terraform_1.5.2_linux_amd64.zip
+
+cluster_name: pounce
+
+network:
+  domain: catnet
+  cidr: 192.168.0.0/16
+
+server:
+  disk: 40
+  mem: 2
+  vcpu: 2
+  vms: 1
+
+agent:
+  disk: 512
+  mem: 56
+  vms: 1
+  vcpu: 8
+
+image_name: OS-GenericCloud

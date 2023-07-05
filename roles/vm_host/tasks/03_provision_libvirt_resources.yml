@@ -1,0 +1,30 @@
+---
+- name: Use Terraform to ensure pool and network are defined
+  community.general.terraform:
+    project_path: "{{ workspace_directory.base_path }}/clusters/{{ cluster_name }}/libvirt-resources"
+    variables:
+      qemu_url: "qemu:///system"
+      domain: "{{ network.domain }}"
+      network_cidr: ' ["{{ network.cidr }}"]'
+      cluster_name: "{{ cluster_name }}"
+    force_init: true
+    state: present
+
+- name: qemu SELinux fix for running images in different folders
+  when: (ansible_distribution == 'Ubuntu' and ansible_distribution_major_version | int  >= 18)
+  block:
+    - name: Ensure security_driver is disabled
+      ansible.builtin.lineinfile:
+        line: 'security_driver = "none"'
+        path: /etc/libvirt/qemu.conf
+        state: present
+      notify:
+        - Restart libvirtd
+
+- name: Configure netplan for br0
+  ansible.builtin.copy:
+    src: files/netplan.yaml
+    dest: /etc/netplan/00-installer-config.yaml
+    mode: 0644
+  notify:
+    - Netplan Apply
