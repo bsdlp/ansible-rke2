@@ -11,6 +11,31 @@
   roles:
     - rke2_host
 
+- name: Check connection to vms and set facts
+  hosts:
+    - servers
+    - agents
+  gather_facts: false
+  tasks:
+    - name: Wait 600 seconds for target connection to become reachable/usable
+      ansible.builtin.wait_for_connection:
+        timeout: 600
+        delay: 0
+
+    - name: Ping host to check status
+      ansible.builtin.ping:
+
+    - name: Extract facts from setup
+      ansible.builtin.setup:
+      register: machine_facts
+
+    - name: Set relevant facts for the host
+      ansible.builtin.set_fact:
+        host_ip: "{{ machine_facts.ansible_facts.ansible_default_ipv4.address }}"
+        host_interface: "{{ machine_facts.ansible_facts.ansible_default_ipv4.interface }}"
+        host_mac: "{{ machine_facts.ansible_facts.ansible_default_ipv4.macaddress }}"
+        host_fqdn: "{{ machine_facts.ansible_facts.ansible_fqdn }}"
+
 - name: configure server vm
   hosts: servers
   vars_files:
