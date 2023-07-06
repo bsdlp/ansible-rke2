@@ -7,13 +7,13 @@ network:
 
 server:
   disk: 40
-  mem: 2
-  vcpu: 2
+  mem: 8
+  vcpu: 4
   vms: 1
 
 agent:
   disk: 512
-  mem: 56
+  mem: 48
   vms: 1
   vcpu: 8
 

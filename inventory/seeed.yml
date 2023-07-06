@@ -9,3 +9,4 @@ vm_hosts:
     agent_hosts:
       hosts:
         21390176.catnet:
+        21390118.catnet:

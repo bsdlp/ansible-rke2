@@ -1,0 +1,47 @@
+<domain type='kvm' id='6'>
+	<name>{{item.name}}</name>
+	<memory unit='MiB'>{{item.memory}}</memory>
+	<currentMemory unit='MiB'>{{item.memory}}</currentMemory>
+	<vcpu>{{item.vcpu}}</vcpu>
+	<os>
+		<type arch='x86_64'>hvm</type>
+		<boot dev='hd' />
+	</os>
+	<clock offset='utc' />
+	<on_poweroff>destroy</on_poweroff>
+	<on_reboot>restart</on_reboot>
+	<on_crash>destroy</on_crash>
+	<devices>
+		<emulator>/usr/bin/qemu-system-x86_64</emulator>
+		<disk type='volume' device='disk'>
+			<driver name='qemu' type='qcow2' />
+			<source pool='{{item.disk_storage_pool}}' volume='{{item.disk_storage_volume}}' />
+			<backingStore type='file' index='3'>
+				<format type='qcow2' />
+				<source file='{{item.disk_backing_store}}' />
+				<backingStore />
+			</backingStore>
+			<target dev='vda' bus='virtio' />
+			<alias name='virtio-disk0' />
+		</disk>
+		<disk type='file' device='cdrom'>
+			<driver name='qemu' type='raw' />
+			<source file='{{item.commoninit_file}}' >/
+			<backingStore />
+			<target dev='hdd' bus='ide' />
+			<readonly />
+			<serial>cloudinit</serial>
+			<alias name='ide0-1-1' />
+		</disk>
+		<controller type='ide' index='0' />
+		<interface type='bridge'>
+			<mac address='{{item.mac|default( "52:54:00"+lookup('lines', 'echo '+item.name+'| md5sum | sed \'s/\(..\)/\\1:/g\' | cut -b1-8'))}}' />
+			<source network='{{item.network}}' bridge='br0' />
+			<model type='virtio' />
+		</interface>
+		<memballoon model='virtio' />
+		<rng model='virtio'>
+			<backend model='random'>/dev/urandom</backend>
+		</rng>
+	</devices>
+</domain>

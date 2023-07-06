@@ -32,7 +32,9 @@ cloud_image_url: https://cloud-images.ubuntu.com/jammy/current/jammy-server-clou
 
 terraform_url: https://releases.hashicorp.com/terraform/1.5.2/terraform_1.5.2_linux_amd64.zip
 
-cluster_name: pounce
+image_name: OS-GenericCloud
+
+ssh_key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBiYsihuKyh5ySvFSDeduMp+HgtGtp0zQIxjC8UeBvib jchen@MacBook-Air-3.catnet
 
 network:
   domain: catnet
@@ -40,14 +42,14 @@ network:
 
 server:
   disk: 40
-  mem: 2
-  vcpu: 2
+  mem: 8
+  vcpu: 4
   vms: 1
 
 agent:
   disk: 512
-  mem: 56
+  mem: 48
   vms: 1
   vcpu: 8
 
-image_name: OS-GenericCloud
+cluster_name: pounce

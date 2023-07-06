@@ -1,0 +1,3 @@
+---
+plugin: community.libvirt.libvirt
+uri: 'qemu+ssh://jchen@21390176.catnet/system?no_verify=1'
