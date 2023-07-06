@@ -1,6 +1,6 @@
 vm_hosts:
   vars:
-    ansible_user: jon
+    ansible_user: jchen
     ansible_become: true
   children:
     server_hosts:
